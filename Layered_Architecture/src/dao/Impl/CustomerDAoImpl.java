@@ -3,6 +3,7 @@ package dao.Impl;
 import dao.CustomerDAO;
 import db.DBConnection;
 import model.CustomerDTO;
+import util.CrudUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,9 +11,7 @@ import java.util.ArrayList;
 public class CustomerDAoImpl implements CustomerDAO {
     public ArrayList<CustomerDTO> getAllCustomers() throws SQLException, ClassNotFoundException {
         ArrayList<CustomerDTO> allcustomers=new ArrayList<>();
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        Statement stm = connection.createStatement();
-        ResultSet rst = stm.executeQuery("SELECT * FROM Customer");
+        ResultSet rst = CrudUtil.execute("SELECT * FROM Customer");
 
         while(rst.next()){
             CustomerDTO customerDTO=new CustomerDTO(rst.getString(1),rst.getString(2),rst.getString(3));
@@ -22,44 +21,24 @@ public class CustomerDAoImpl implements CustomerDAO {
     }
 
     public boolean saveCustomer(CustomerDTO customerDTO) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer (id,name, address) VALUES (?,?,?)");
-        pstm.setString(1, customerDTO.getId());
-        pstm.setString(2, customerDTO.getName());
-        pstm.setString(3, customerDTO.getAddress());
-
-        return pstm.executeUpdate()>0;
+        return CrudUtil.execute("INSERT INTO Customer (id,name, address) VALUES (?,?,?)",customerDTO.getId(),customerDTO.getName(),customerDTO.getAddress());
     }
 
     public boolean updateCustomer(CustomerDTO customerDTO) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?, address=? WHERE id=?");
-        pstm.setString(1, customerDTO.getName());
-        pstm.setString(2, customerDTO.getAddress());
-        pstm.setString(3, customerDTO.getId());
-
-        return pstm.executeUpdate()>0;
+        return CrudUtil.execute("UPDATE Customer SET name=?, address=? WHERE id=?",customerDTO.getName(),customerDTO.getAddress(),customerDTO.getId());
     }
 
     public boolean deleteCustomer(String id) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
-        pstm.setString(1, id);
-
-        return pstm.executeUpdate()>0;
+        return CrudUtil.execute("DELETE FROM Customer WHERE id=?",id);
     }
 
     public boolean existCustomer(String id) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement pstm = connection.prepareStatement("SELECT id FROM Customer WHERE id=?");
-        pstm.setString(1, id);
-
-        return pstm.executeQuery().next();
+        ResultSet resultSet= CrudUtil.execute("SELECT id FROM Customer WHERE id=?",id);
+        return resultSet.next();
     }
 
     public String newIdGenerate() throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
+        ResultSet rst = CrudUtil.execute("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
         if (rst.next()) {
             String id = rst.getString("id");
             int newCustomerId = Integer.parseInt(id.replace("C00-", "")) + 1;
@@ -70,10 +49,7 @@ public class CustomerDAoImpl implements CustomerDAO {
     }
 
     public CustomerDTO findCustomer(String id) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement pstm = connection.prepareStatement("SELECT * FROM Customer WHERE id=?");
-        pstm.setString(1, id + "");
-        ResultSet rst = pstm.executeQuery();
+        ResultSet rst = CrudUtil.execute("SELECT * FROM Customer WHERE id=?",id+ "");
         rst.next();
         return new CustomerDTO(id + "", rst.getString("name"), rst.getString("address"));
     }

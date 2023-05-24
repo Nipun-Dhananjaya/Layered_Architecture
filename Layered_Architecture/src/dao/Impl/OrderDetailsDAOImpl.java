@@ -3,6 +3,7 @@ package dao.Impl;
 import dao.OrderDetailsDAO;
 import db.DBConnection;
 import model.OrderDetailDTO;
+import util.CrudUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,12 +11,6 @@ import java.sql.SQLException;
 
 public class OrderDetailsDAOImpl implements OrderDetailsDAO {
     public boolean saveOrderDetails(OrderDetailDTO dto) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement stm = connection.prepareStatement("INSERT INTO OrderDetails (oid, itemCode, unitPrice, qty) VALUES (?,?,?,?)");
-        stm.setString(1, dto.getOid());
-        stm.setString(2, dto.getItemCode());
-        stm.setBigDecimal(3, dto.getUnitPrice());
-        stm.setInt(4, dto.getQty());
-        return stm.executeUpdate()>0;
+        return CrudUtil.execute("INSERT INTO OrderDetails (oid, itemCode, unitPrice, qty) VALUES (?,?,?,?)",dto.getOid(),dto.getItemCode(),dto.getUnitPrice(),dto.getUnitPrice(),dto.getQty());
     }
 }
