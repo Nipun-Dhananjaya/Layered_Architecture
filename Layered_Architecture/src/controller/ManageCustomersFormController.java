@@ -2,7 +2,7 @@ package controller;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
-import dao.CustomerDAO;
+import dao.CrudDAO;
 import dao.Impl.CustomerDAoImpl;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -40,7 +40,7 @@ public class ManageCustomersFormController {
     public JFXTextField txtCustomerAddress;
     public TableView<CustomerTM> tblCustomers;
     public JFXButton btnAddNewCustomer;
-    CustomerDAO customerDAo=new CustomerDAoImpl();
+    CrudDAO customerDAo=new CustomerDAoImpl();
 
     public void initialize() {
         tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -76,7 +76,7 @@ public class ManageCustomersFormController {
             /*Connection connection = DBConnection.getDbConnection().getConnection();
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT * FROM Customer");*/
-            ArrayList<CustomerDTO> allCustomers = customerDAo.getAllCustomers();
+            ArrayList<CustomerDTO> allCustomers = customerDAo.getAll();
 
             for (CustomerDTO customerDto:
                  allCustomers) {
@@ -159,7 +159,7 @@ public class ManageCustomersFormController {
                 pstm.setString(2, name);
                 pstm.setString(3, address);
                 pstm.executeUpdate();*/
-                boolean isAdded=customerDAo.saveCustomer(new CustomerDTO(id,name,address));
+                boolean isAdded=customerDAo.save(new CustomerDTO(id,name,address));
                 if (isAdded) {
                     tblCustomers.getItems().add(new CustomerTM(id, name, address));
                 }
@@ -182,7 +182,7 @@ public class ManageCustomersFormController {
                 pstm.setString(2, address);
                 pstm.setString(3, id);
                 pstm.executeUpdate();*/
-                boolean isUpdated=customerDAo.updateCustomer(new CustomerDTO(id,name,address));
+                boolean isUpdated=customerDAo.update(new CustomerDTO(id,name,address));
             } catch (SQLException e) {
                 new Alert(Alert.AlertType.ERROR, "Failed to update the customer " + id + e.getMessage()).show();
             } catch (ClassNotFoundException e) {
@@ -203,7 +203,7 @@ public class ManageCustomersFormController {
         /*Connection connection = DBConnection.getDbConnection().getConnection();
         PreparedStatement pstm = connection.prepareStatement("SELECT id FROM Customer WHERE id=?");
         pstm.setString(1, id);*/
-        return customerDAo.existCustomer(id);
+        return customerDAo.exist(id);
     }
 
 
@@ -218,7 +218,7 @@ public class ManageCustomersFormController {
             PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
             pstm.setString(1, id);
             pstm.executeUpdate();*/
-            boolean isDeleted=customerDAo.deleteCustomer(id);
+            boolean isDeleted=customerDAo.delete(id);
             if (isDeleted){
                 tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
                 tblCustomers.getSelectionModel().clearSelection();
@@ -234,16 +234,7 @@ public class ManageCustomersFormController {
 
     private String generateNewId() {
         try {
-            /*Connection connection = DBConnection.getDbConnection().getConnection();
-            ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
-            if (rst.next()) {
-                String id = rst.getString("id");
-                int newCustomerId = Integer.parseInt(id.replace("C00-", "")) + 1;
-                return String.format("C00-%03d", newCustomerId);
-            } else {
-                return "C00-001";
-            }*/
-            return customerDAo.newIdGenerate();
+            return (String) customerDAo.newIdGenerate();
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Failed to generate a new id " + e.getMessage()).show();
         } catch (ClassNotFoundException e) {
