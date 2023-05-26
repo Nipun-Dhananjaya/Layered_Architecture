@@ -1,11 +1,11 @@
 package controller;
 
-import bo.Impl.ItemBOImpl;
-import bo.ItemBO;
+import bo.BOFactory;
+import bo.SuperBO;
+import bo.custom.Impl.ItemBOImpl;
+import bo.custom.ItemBO;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
-import dao.custom.Impl.ItemDAOImpl;
-import dao.custom.ItemDAO;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,7 +37,7 @@ public class ManageItemsFormController {
     public TableView<ItemTM> tblItems;
     public JFXTextField txtUnitPrice;
     public JFXButton btnAddNewItem;
-    ItemBO itemBO=new ItemBOImpl();
+    ItemBO itemBO= (ItemBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.ITEM);
 
     public void initialize() {
         tblItems.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
