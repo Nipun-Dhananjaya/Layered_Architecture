@@ -25,11 +25,6 @@ import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 
-/**
- * @author : Sanu Vithanage
- * @since : 0.1.0
- **/
-
 public class ManageItemsFormController {
     public AnchorPane root;
     public JFXTextField txtCode;
