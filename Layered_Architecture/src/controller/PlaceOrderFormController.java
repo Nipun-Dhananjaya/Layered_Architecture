@@ -1,21 +1,10 @@
 package controller;
 
-import bo.CustomerBO;
-import bo.Impl.CustomerBOImpl;
-import bo.Impl.ItemBOImpl;
-import bo.Impl.OrderBOImpl;
-import bo.Impl.OrderDetailsBOImpl;
-import bo.ItemBO;
-import bo.OrderBO;
-import bo.OrderDetailsBO;
+import bo.*;
+import bo.Impl.*;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import dao.custom.Impl.*;
-import dao.custom.CustomerDAO;
-import dao.custom.ItemDAO;
-import dao.custom.OrderDAO;
-import dao.custom.OrderDetailsDAO;
 import db.DBConnection;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -65,7 +54,7 @@ public class PlaceOrderFormController {
     CustomerBO customerBO=new CustomerBOImpl();
     ItemBO itemBO=new ItemBOImpl();
     OrderBO orderBO=new OrderBOImpl();
-    OrderDetailsBO orderDetailsBO=new OrderDetailsBOImpl();
+    PlaceOrderBO placeOrderBO=new PlaceOrderBOImpl();
 
     public void initialize() throws SQLException, ClassNotFoundException {
 
@@ -326,66 +315,11 @@ public class PlaceOrderFormController {
 
     public boolean saveOrder(String orderId, LocalDate orderDate, String customerId, List<OrderDetailDTO> orderDetails) {
         /*Transaction*/
-        Connection connection = null;
-        try {
-            connection= DBConnection.getDbConnection().getConnection();
-
-            //Check order id already exist or not
-            boolean b1 = orderBO.existOrder(orderId);
-            /*if order id already exist*/
-            if (b1) {
-                return false;
-            }
-
-            connection.setAutoCommit(false);
-
-            //Save the Order to the order table
-            boolean b2 = orderBO.saveOrder(new OrderDTO(orderId, orderDate, customerId));
-
-            if (!b2) {
-                connection.rollback();
-                connection.setAutoCommit(true);
-                return false;
-            }
-
-
-            // add data to the Order Details table
-            for (OrderDetailDTO detail : orderDetails) {
-                boolean b3 = orderDetailsBO.saveOrderDetails(detail);
-                if (!b3) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                    return false;
-                }
-
-                //Search & Update Item
-                ItemDTO item = itemBO.findItem(detail.getItemCode());
-                item.setQtyOnHand(item.getQtyOnHand() - detail.getQty());
-
-                //update item
-                boolean b = itemBO.updateItem(new ItemDTO(item.getCode(), item.getDescription(), item.getQtyOnHand(), item.getUnitPrice()));
-
-                if (!b) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                    return false;
-                }
-            }
-
-            connection.commit();
-            connection.setAutoCommit(true);
-            return true;
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
+        return placeOrderBO.placeOrder(orderId,orderDate,customerId,orderDetails);
     }
 
 
-    public ItemDTO findItem(String code) {
+    /*public ItemDTO findItem(String code) {
         try {
             return itemBO.findItem(code);
         } catch (SQLException e) {
@@ -394,7 +328,7 @@ public class PlaceOrderFormController {
             e.printStackTrace();
         }
         return null;
-    }
+    }*/
 
 
 }
