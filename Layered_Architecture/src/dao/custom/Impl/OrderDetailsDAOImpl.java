@@ -1,13 +1,9 @@
-package dao.Impl;
+package dao.custom.Impl;
 
-import dao.CrudDAO;
-import dao.OrderDetailsDAO;
-import db.DBConnection;
+import dao.custom.OrderDetailsDAO;
 import model.OrderDetailDTO;
 import util.CrudUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
